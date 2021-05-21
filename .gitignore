@@ -1,2 +1,3 @@
 appvenv/
 .env
+__pycache__/
