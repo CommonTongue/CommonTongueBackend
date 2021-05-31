@@ -1,1 +1,1 @@
-source ./appvenv/bin/activate
+source ./appvenv/bin/activate && flask run
