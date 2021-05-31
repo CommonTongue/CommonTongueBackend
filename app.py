@@ -17,9 +17,15 @@ client = pymongo.MongoClient(client_connection)
 db = client.alpha
 users_collection = db.users
 
+@app.route('/', methods=["GET", "POST"])
+def generic():
+    print('Test')
+    return 'HELLO WORLD', 200
+
 @app.route('/signup', methods=["POST"])
 def signup():
-    users_collection.insert_one({'hi': 'wow'})
-    return 'Success', 200
+    print(request.json)
+    # users_collection.insert_one({'hi': 'wow'})
+    return 'Signed Up', 200
 
 # signup()
