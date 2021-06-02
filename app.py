@@ -52,4 +52,30 @@ def auth():
         upsert=True)
     return 'Success', 200
 
-# signup()
+
+@app.route('/decks', methods=["GET"])
+def get_decks():
+    return 200
+
+
+# Adds/removes a new deck in the specified language.
+@app.route('/decks', methods=["POST"])
+def add_deck():
+    return 200
+
+
+# Update deck by adding new cards.
+# Specify the deck to effect, and the ranked word to add/remove.
+@app.route('/updatedeck', methods=["POST"])
+def add_word_to_deck():
+    return 200
+
+# Fetch cards for exploration.
+# Returns explore cards in the specified language,
+# along with the specified translation language.
+# Provide start-end ranks to return.
+
+
+@app.route('/explore', methods=["GET"])
+def explore():
+    return 200
