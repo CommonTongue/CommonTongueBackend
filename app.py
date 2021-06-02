@@ -2,6 +2,7 @@ from flask import Flask, request, Response
 from os import getenv
 from flask_cors import CORS
 import pymongo
+import time
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
@@ -23,22 +24,32 @@ def generic():
     return 'HELLO WORLD', 200
 
 
-@app.route('/signup', methods=["POST"])
-def signup():
+# Either creates a new user or signs in.
+@app.route('/auth', methods=["POST"])
+def auth():
     post_data = request.json
     # accessToken may be expired
     email = post_data['email']
     firstName = post_data['firstName']
     lastName = post_data['lastName']
     photoUrl = post_data['photoUrl']
-    users_collection.insert_one(
-        {'email': email,
-         'firstName': firstName,
-         'lastName': lastName,
-         'photoUrl': photoUrl,
-         'level': 0,
-         'decks': []
-         })
+    newUser = {'email': email,
+               'firstName': firstName,
+               'lastName': lastName,
+               'photoUrl': photoUrl,
+               'level': 0,
+               'decks': [],
+               'lastSeen': time.time()
+               }
+    # if email exists, update.
+    inserted_user = users_collection.update_one(
+        {
+            'email': email
+        },
+        {
+            '$set': newUser
+        },
+        upsert=True)
     return 'Success', 200
 
 # signup()
