@@ -16,8 +16,16 @@ MONGO_DATABASE = getenv('MONGO_DATABASE')
 client_connection = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@{MONGO_CLUSTER_URL}/{MONGO_DATABASE}?retryWrites=true&w=majority"
 client = pymongo.MongoClient(client_connection)
 db = client.alpha
+# collection of users
 users_collection = db.users
-
+# collection of decks
+decks_collection = db.decks
+# collection of languages
+languages_collection = db.languages
+# collection of rankedwords
+ranked_words_collection = db.ranked_words
+# collection of translations
+translations_collection = db.translations
 
 @app.route('/', methods=["GET", "POST"])
 def generic():
@@ -96,4 +104,10 @@ def level_up():
 
 @app.route('/explore', methods=["GET"])
 def explore():
+    return 'Success', 200
+
+
+@app.route('/languages', methods=["GET"])
+def languages():
+    
     return 'Success', 200
