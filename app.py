@@ -3,6 +3,7 @@ from os import getenv
 from flask_cors import CORS
 import pymongo
 import time
+import json
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
@@ -27,12 +28,11 @@ def generic():
 # Either creates a new user or signs in.
 @app.route('/auth', methods=["POST"])
 def auth():
-    post_data = request.json
-    # accessToken may be expired
-    email = post_data['email']
-    firstName = post_data['firstName']
-    lastName = post_data['lastName']
-    photoUrl = post_data['photoUrl']
+    body = request.json
+    email = body['email']
+    firstName = body['firstName']
+    lastName = body['lastName']
+    photoUrl = body['photoUrl']
     newUser = {'email': email,
                'firstName': firstName,
                'lastName': lastName,
@@ -42,7 +42,7 @@ def auth():
                'lastSeen': time.time()
                }
     # if email exists, update.
-    inserted_user = users_collection.update_one(
+    authed_user = users_collection.find_one_and_update(
         {
             'email': email
         },
@@ -50,26 +50,44 @@ def auth():
             '$set': newUser
         },
         upsert=True)
+    # return inserted ID to locally track user on client
+    # uuid = str(authed_user['_id'])
     return 'Success', 200
 
 
 @app.route('/decks', methods=["GET"])
 def get_decks():
-    return 200
+    return 'Success', 200
 
 
 # Adds/removes a new deck in the specified language.
 @app.route('/decks', methods=["POST"])
 def add_deck():
-    return 200
+    return 'Success', 200
 
 
 # Update deck by adding new cards.
 # Specify the deck to effect, and the ranked word to add/remove.
 @app.route('/updatedeck', methods=["POST"])
 def add_word_to_deck():
-    return 200
+    return 'Success', 200
 
+
+@app.route('/levelup', methods=["POST"])
+def level_up():
+    body = request.json
+    email = body['email']
+    users_collection.update_one(
+        {
+            'email': email,
+        },
+        {
+            '$inc': {
+                'level': 1
+            }
+        }
+    )
+    return 'Success', 200
 # Fetch cards for exploration.
 # Returns explore cards in the specified language,
 # along with the specified translation language.
@@ -78,4 +96,4 @@ def add_word_to_deck():
 
 @app.route('/explore', methods=["GET"])
 def explore():
-    return 200
+    return 'Success', 200
