@@ -27,6 +27,7 @@ ranked_words_collection = db.ranked_words
 # collection of translations
 translations_collection = db.translations
 
+
 @app.route('/', methods=["GET", "POST"])
 def generic():
     print('Test')
@@ -58,9 +59,31 @@ def auth():
             '$set': newUser
         },
         upsert=True)
-    # return inserted ID to locally track user on client
-    # uuid = str(authed_user['_id'])
-    return 'Success', 200
+    # return the fetched user object stored in the database
+    # Remove uuid from JSON
+    if authed_user is None:
+        authed_user = newUser
+    else:
+        authed_user.pop('_id', None)
+    return authed_user, 200
+
+
+# Get user when an email is sent
+@app.route('/user', methods=["GET, POST"])
+def get_user():
+    body = request.json
+    email = body['email']
+    got_user = users_collection.find_one(
+        {
+            'email': email
+        },
+        {
+            '_id': 0,  # Exclude id
+            'lastSeen': 0  # Excluse lastSeen
+        }
+    )
+
+    return got_user, 200
 
 
 @app.route('/decks', methods=["GET"])
@@ -109,5 +132,5 @@ def explore():
 
 @app.route('/languages', methods=["GET"])
 def languages():
-    
+
     return 'Success', 200
