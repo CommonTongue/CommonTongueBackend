@@ -70,7 +70,7 @@ def auth():
 
 # Get user when an email is sent
 @app.route('/user', methods=["POST"])
-def get_user():
+def user():
     body = request.json
     email = body['email']
     got_user = users_collection.find_one(
@@ -85,54 +85,8 @@ def get_user():
     return got_user, 200
 
 
-# Gets a new deck in the specified language.
-@app.route('/get-decks', methods=["POST"])
-def get_decks():
-    body = request.json
-    email = body['email']
-    got_user = users_collection.find_one(
-        {
-            'email': email
-        }
-    )
-    return { 'decks': str(got_user['decks'])}, 200
-
-
-# Update deck by adding new cards.
-# Specify the deck to affect, and the ranked word to add.
-@app.route('/add-to-deck', methods=["POST"])
-def add_word_to_deck():
-    body = request.json
-    email = body['email']
-    add = body['add']
-    got_user = users_collection.find_one_and_update(
-        {
-            'email': email
-        },
-        {
-            '$push': { 'decks': add}
-        }
-    )
-    return 'Success', 200
-
-# TODO: Specify the deck to remove
-@app.route('/make-deck', methods=["POST"])
-def add_word_to_deck():
-    body = request.json
-    email = body['email']
-    language = body['language']
-    got_user = users_collection.find_one_and_update(
-        {
-            'email': email
-        },
-        {
-            '$push': { 'decks': language}
-        }
-    )
-    return 'Success', 200
-
-
-@app.route('/levelup', methods=["POST"])
+# Levels up user with the given email
+@app.route('/level-up', methods=["POST"])
 def level_up():
     body = request.json
     email = body['email']
@@ -147,18 +101,82 @@ def level_up():
         }
     )
     return 'Success', 200
+
+
+# Gets a new deck in the specified language.
+@app.route('/get-decks', methods=["POST"])
+def get_decks():
+    body = request.json
+    email = body['email']
+    got_user = users_collection.find_one(
+        {
+            'email': email
+        }
+    )
+    return {'decks': str(got_user['decks'])}, 200
+
+
+# Specify the deck to create
+@app.route('/add-deck', methods=["POST"])
+def add_deck():
+    body = request.json
+    email = body['email']
+    add = body['add']
+    users_collection.find_one_and_update(
+        {
+            'email': email
+        },
+        {
+            '$push': {'decks': add}
+        }
+    )
+    return 'Success', 200
+
+
+# Specify the deck to deck
+@app.route('/remove-deck', methods=["POST"])
+def remove_deck():
+    body = request.json
+    email = body['email']
+    remove = body['remove']
+    # delete deck
+    decks_collection.delete_one({ '_id': remove})
+    # delete deck from user array
+    users_collection.find_one_and_update(
+        {
+            'email': email
+        },
+        {
+            '$pull': {'decks': remove }
+        }
+    )
+    return 'Success', 200
+
+
+# TODO: Specify the deck to make
+@ app.route('/make-deck', methods = ["POST"])
+def make_deck():
+    body=request.json
+    email=body['email']
+    language=body['language']
+    new_deck=decks_collection.update_one({
+        email: email
+    })
+    return 'Success', 200
+
+# TODO: Specify the deck to remove
 # Fetch cards for exploration.
 # Returns explore cards in the specified language,
 # along with the specified translation language.
 # Provide start-end ranks to return.
 
 
-@app.route('/explore', methods=["GET"])
+@ app.route('/explore', methods = ["GET"])
 def explore():
     return 'Success', 200
 
 
-@app.route('/languages', methods=["GET"])
+@ app.route('/languages', methods = ["GET"])
 def languages():
 
     return 'Success', 200
