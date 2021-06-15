@@ -69,7 +69,7 @@ def auth():
 
 
 # Get user when an email is sent
-@app.route('/user', methods=["GET, POST"])
+@app.route('/user', methods=["POST"])
 def get_user():
     body = request.json
     email = body['email']
@@ -79,28 +79,56 @@ def get_user():
         },
         {
             '_id': 0,  # Exclude id
-            'lastSeen': 0  # Excluse lastSeen
         }
     )
 
     return got_user, 200
 
 
-@app.route('/decks', methods=["GET"])
+# Gets a new deck in the specified language.
+@app.route('/get-decks', methods=["POST"])
 def get_decks():
-    return 'Success', 200
-
-
-# Adds/removes a new deck in the specified language.
-@app.route('/decks', methods=["POST"])
-def add_deck():
-    return 'Success', 200
+    body = request.json
+    email = body['email']
+    got_user = users_collection.find_one(
+        {
+            'email': email
+        }
+    )
+    return { 'decks': str(got_user['decks'])}, 200
 
 
 # Update deck by adding new cards.
-# Specify the deck to effect, and the ranked word to add/remove.
-@app.route('/updatedeck', methods=["POST"])
+# Specify the deck to affect, and the ranked word to add.
+@app.route('/add-to-deck', methods=["POST"])
 def add_word_to_deck():
+    body = request.json
+    email = body['email']
+    add = body['add']
+    got_user = users_collection.find_one_and_update(
+        {
+            'email': email
+        },
+        {
+            '$push': { 'decks': add}
+        }
+    )
+    return 'Success', 200
+
+# TODO: Specify the deck to remove
+@app.route('/make-deck', methods=["POST"])
+def add_word_to_deck():
+    body = request.json
+    email = body['email']
+    language = body['language']
+    got_user = users_collection.find_one_and_update(
+        {
+            'email': email
+        },
+        {
+            '$push': { 'decks': language}
+        }
+    )
     return 'Success', 200
 
 
