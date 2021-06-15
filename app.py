@@ -158,7 +158,7 @@ def remove_deck():
     return 'Success', 200
 
 
-# Specify the deck to add to
+# Specify the deck to add to and the word
 @ app.route('/add-to-deck', methods=["POST"])
 def add_to_deck():
     body = request.json
@@ -168,6 +168,19 @@ def add_to_deck():
         '_id': deck_id
     }, {
         '$push': ranked_word
+    })
+    return 'Success', 200
+
+# Specify the deck to remove card from
+@ app.route('/remove-from-deck', methods=["POST"])
+def remove_from_deck():
+    body = request.json
+    deck_id = body['deck_id']
+    ranked_word = body['ranked_word']
+    decks_collection.update_one({
+        '_id': deck_id
+    }, {
+        '$pull': { '_id': ranked_word}
     })
     return 'Success', 200
 
