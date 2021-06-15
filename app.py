@@ -158,14 +158,16 @@ def remove_deck():
     return 'Success', 200
 
 
-# TODO: Specify the deck to make
-@ app.route('/make-deck', methods=["POST"])
-def make_deck():
+# Specify the deck to add to
+@ app.route('/add-to-deck', methods=["POST"])
+def add_to_deck():
     body = request.json
-    email = body['email']
-    language = body['language']
-    new_deck = decks_collection.update_one({
-        email: email
+    deck_id = body['deck_id']
+    ranked_word = body['ranked_word']
+    decks_collection.update_one({
+        '_id': deck_id
+    }, {
+        '$push': ranked_word
     })
     return 'Success', 200
 
