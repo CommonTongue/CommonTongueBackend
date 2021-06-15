@@ -121,13 +121,18 @@ def get_decks():
 def add_deck():
     body = request.json
     email = body['email']
-    add = body['add']
+    language = body['language']
+    new_deck = decks_collection.insert_one({
+        "language": language,
+        "words": []
+    })
+    new_deck_id = new_deck.inserted_id
     users_collection.find_one_and_update(
         {
             'email': email
         },
         {
-            '$push': {'decks': add}
+            '$push': {'decks': new_deck_id}
         }
     )
     return 'Success', 200
@@ -140,26 +145,26 @@ def remove_deck():
     email = body['email']
     remove = body['remove']
     # delete deck
-    decks_collection.delete_one({ '_id': remove})
+    decks_collection.delete_one({'_id': remove})
     # delete deck from user array
     users_collection.find_one_and_update(
         {
             'email': email
         },
         {
-            '$pull': {'decks': remove }
+            '$pull': {'decks': remove}
         }
     )
     return 'Success', 200
 
 
 # TODO: Specify the deck to make
-@ app.route('/make-deck', methods = ["POST"])
+@ app.route('/make-deck', methods=["POST"])
 def make_deck():
-    body=request.json
-    email=body['email']
-    language=body['language']
-    new_deck=decks_collection.update_one({
+    body = request.json
+    email = body['email']
+    language = body['language']
+    new_deck = decks_collection.update_one({
         email: email
     })
     return 'Success', 200
@@ -171,12 +176,12 @@ def make_deck():
 # Provide start-end ranks to return.
 
 
-@ app.route('/explore', methods = ["GET"])
+@ app.route('/explore', methods=["GET"])
 def explore():
     return 'Success', 200
 
 
-@ app.route('/languages', methods = ["GET"])
+@ app.route('/languages', methods=["GET"])
 def languages():
 
     return 'Success', 200
