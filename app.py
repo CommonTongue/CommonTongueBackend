@@ -138,6 +138,7 @@ def add_deck():
     return 'Success', 200
 
 
+# TODO: test everything below here
 # Specify the deck to deck
 @app.route('/remove-deck', methods=["POST"])
 def remove_deck():
