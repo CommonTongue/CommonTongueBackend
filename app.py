@@ -4,6 +4,7 @@ from flask_cors import CORS
 import pymongo
 import time
 import json
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
@@ -135,7 +136,7 @@ def add_deck():
             '$push': {'decks': new_deck_id}
         }
     )
-    return 'Success', 200
+    return { 'id': str(new_deck_id) }, 200
 
 
 # TODO: test everything below here
@@ -144,16 +145,17 @@ def add_deck():
 def remove_deck():
     body = request.json
     email = body['email']
-    remove = body['remove']
+    deck_id = body['deck_id']
     # delete deck
-    decks_collection.delete_one({'_id': remove})
+    deck_object_id = ObjectId(deck_id)
+    decks_collection.delete_one({'_id': deck_object_id})
     # delete deck from user array
     users_collection.find_one_and_update(
         {
             'email': email
         },
         {
-            '$pull': {'decks': remove}
+            '$pull': {'decks': deck_object_id}
         }
     )
     return 'Success', 200
