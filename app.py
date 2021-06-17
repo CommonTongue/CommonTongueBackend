@@ -139,7 +139,6 @@ def add_deck():
     return { 'id': str(new_deck_id) }, 200
 
 
-# TODO: test everything below here
 # Specify the deck to deck
 @app.route('/remove-deck', methods=["POST"])
 def remove_deck():
@@ -167,24 +166,35 @@ def add_to_deck():
     body = request.json
     deck_id = body['deck_id']
     ranked_word = body['ranked_word']
-    decks_collection.update_one({
-        '_id': deck_id
-    }, {
-        '$push': ranked_word
-    })
+    try:
+        decks_collection.find_one_and_update({
+            '_id': ObjectId(deck_id)
+        }, {
+            '$push': {
+                'words': ObjectId(ranked_word)
+            }
+        })
+    except:
+        pass
     return 'Success', 200
 
+# TODO: test everything below here
 # Specify the deck to remove card from
 @ app.route('/remove-from-deck', methods=["POST"])
 def remove_from_deck():
     body = request.json
     deck_id = body['deck_id']
     ranked_word = body['ranked_word']
-    decks_collection.update_one({
-        '_id': deck_id
-    }, {
-        '$pull': { '_id': ranked_word}
-    })
+    try:
+        decks_collection.find_one_and_update({
+            '_id': ObjectId(deck_id)
+        }, {
+            '$pull': {
+                'words': ObjectId(ranked_word)
+            }
+        })
+    except:
+        pass
     return 'Success', 200
 
 # TODO: Specify the deck to remove
