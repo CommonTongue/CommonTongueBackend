@@ -175,10 +175,9 @@ def add_to_deck():
             }
         })
     except:
-        pass
+        print('Invalid removal adding', ranked_word, 'to deck', deck_id)
     return 'Success', 200
 
-# TODO: test everything below here
 # Specify the deck to remove card from
 @ app.route('/remove-from-deck', methods=["POST"])
 def remove_from_deck():
@@ -194,7 +193,7 @@ def remove_from_deck():
             }
         })
     except:
-        pass
+        print('Invalid removal removing', ranked_word, 'from deck', deck_id)
     return 'Success', 200
 
 # TODO: Specify the deck to remove
