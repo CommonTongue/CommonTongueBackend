@@ -27,6 +27,8 @@ languages_collection = db.languages
 ranked_words_collection = db.ranked_words
 # collection of translations
 translations_collection = db.translations
+# collection of knowledgebases
+knowledge_bases_collection = db.knowledge_bases
 
 
 @app.route('/', methods=["GET", "POST"])
@@ -136,7 +138,7 @@ def add_deck():
             '$push': {'decks': new_deck_id}
         }
     )
-    return { 'id': str(new_deck_id) }, 200
+    return {'id': str(new_deck_id)}, 200
 
 
 # Specify the deck to deck
@@ -178,6 +180,7 @@ def add_to_deck():
         print('Invalid removal adding', ranked_word, 'to deck', deck_id)
     return 'Success', 200
 
+
 # Specify the deck to remove card from
 @ app.route('/remove-from-deck', methods=["POST"])
 def remove_from_deck():
@@ -196,19 +199,49 @@ def remove_from_deck():
         print('Invalid removal removing', ranked_word, 'from deck', deck_id)
     return 'Success', 200
 
-# TODO: Specify the deck to remove
+
 # Fetch cards for exploration.
 # Returns explore cards in the specified language,
 # along with the specified translation language.
 # Provide start-end ranks to return.
-
-
 @ app.route('/explore', methods=["GET"])
 def explore():
+    query_params = request.args
+    # print(query_params);
+    from_language = query_params.get('from_language')
+    to_language = query_params.get('to_language')
+    start = int(query_params.get('start'))
+    end = int(query_params.get('end'))
+    try:
+        knowledge_base = knowledge_bases_collection.find_one({
+            'language.name': from_language
+        })
+        words = knowledge_base['words']
+        num_words = len(words)
+        relevant_words = words[start: min(num_words, start + end)]
+        relevant_ranked_words = ranked_words_collection.find({'_id': {
+            '$in': relevant_words
+        }})
+        print(relevant_ranked_words)
+    except:
+        pass
+    # try:
+    #     # get knowledge base by language
+    #     # knowledge_
+    #     # then get rankedwords from words array of knowledgebases
+    #     # get words by index
+    #     # get translation of each rankedword
+    #     # get relevant translation of each translation
+    #     # ranked_words_collection.find({
+    #     #     'rank': {
+    #     #         '$gte': level,
+    #     #         '$lt': level + number
+    #     #     }
+    #     # })
+    #     pass
     return 'Success', 200
 
 
 @ app.route('/languages', methods=["GET"])
 def languages():
-
     return 'Success', 200
