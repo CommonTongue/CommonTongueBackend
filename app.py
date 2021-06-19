@@ -214,32 +214,49 @@ def explore():
     end = int(query_params.get('end'))
     try:
         knowledge_base = knowledge_bases_collection.find_one({
-            'language.name': from_language
+            'language.alpha2': from_language
         })
-        words = knowledge_base['words']
-        num_words = len(words)
-        relevant_words = words[start: min(num_words, start + end)]
+        relevant_words = knowledge_base['words']
         relevant_ranked_words = ranked_words_collection.find({'_id': {
             '$in': relevant_words
-        }})
-        print(relevant_ranked_words)
+        },
+            'rank': {
+            '$gte': start,
+            '$lte': end
+        }
+        })
+        # aggregate translation from relevant ranked words
+        translations = []
+        for ranked_word in relevant_ranked_words:
+            translations.append(ranked_word['translation'])
+        # fetch translations
+        fetched_translations = translations_collection.find({'_id': { '$in': translations}}, { from_language, to_language })
+        payload_set = dict()
+        print(fetched_translations)
+        for fetched_translation in fetched_translations:
+            translation_id = fetched_translation['_id']
+            from_word = fetched_translation[from_language]
+            to_word = fetched_translation[to_language]
+            payload_set[translation_id] = (from_word, to_word)
+        payload = []
+        # reset cursor
+        relevant_ranked_words.rewind()
+        for ranked_word in relevant_ranked_words:
+            print('b')
+            this_rank = ranked_word['rank']
+            this_id = str(ranked_word['_id']) # serialize ObjectId
+            this_translation_id = ranked_word['translation']
+            this_from, this_to = payload_set[this_translation_id]
+            this_payload = {
+                '_id': this_id,
+                'rank': this_rank,
+                'from': this_from,
+                'to': this_to,
+            }
+            payload.append(this_payload)
     except:
-        pass
-    # try:
-    #     # get knowledge base by language
-    #     # knowledge_
-    #     # then get rankedwords from words array of knowledgebases
-    #     # get words by index
-    #     # get translation of each rankedword
-    #     # get relevant translation of each translation
-    #     # ranked_words_collection.find({
-    #     #     'rank': {
-    #     #         '$gte': level,
-    #     #         '$lt': level + number
-    #     #     }
-    #     # })
-    #     pass
-    return 'Success', 200
+        print('Problem fetching explore from language', from_language, 'to', to_language, ': ranks', start, '-', end)
+    return {'payload ': payload}
 
 
 @ app.route('/languages', methods=["GET"])
