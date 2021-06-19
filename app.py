@@ -231,7 +231,8 @@ def explore():
         for ranked_word in relevant_ranked_words:
             translations.append(ranked_word['translation'])
         # fetch translations
-        fetched_translations = translations_collection.find({'_id': { '$in': translations}}, { from_language, to_language })
+        fetched_translations = translations_collection.find(
+            {'_id': {'$in': translations}}, {from_language, to_language})
         payload_set = dict()
         print(fetched_translations)
         for fetched_translation in fetched_translations:
@@ -243,7 +244,7 @@ def explore():
         relevant_ranked_words.rewind()
         for ranked_word in relevant_ranked_words:
             this_rank = ranked_word['rank']
-            this_id = str(ranked_word['_id']) # serialize ObjectId
+            this_id = str(ranked_word['_id'])  # serialize ObjectId
             this_translation_id = ranked_word['translation']
             this_from, this_to = payload_set[this_translation_id]
             this_payload = {
@@ -254,12 +255,20 @@ def explore():
             }
             payload.append(this_payload)
     except:
-        print('Problem fetching explore from language', from_language, 'to', to_language, ': ranks', start, '-', end)
+        print('Problem fetching explore from language', from_language,
+              'to', to_language, ': ranks', start, '-', end)
     return {'payload ': payload}
 
 
+# Fetch enabled languages
 @ app.route('/languages', methods=["GET"])
 def languages():
-    enabled_languages = languages_collection.find({ 'enabled': True })
-    print(list(enabled_languages))
-    return 'Success', 200
+    enabled_languages = languages_collection.find(
+        {'enabled': True}, {'alpha2', 'name'})
+    language_list = []
+    for enabled_language in enabled_languages:
+        alpha2 = enabled_language['alpha2']
+        name = enabled_language['name']
+        language_list.append(
+            {'alpha2': alpha2, 'name': name})
+    return {'languages': language_list}
