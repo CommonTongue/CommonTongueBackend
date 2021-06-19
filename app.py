@@ -259,6 +259,6 @@ def explore():
     return {'payload ': payload}
 
 
-@ app.route('/languages', methods=["GET"])
-def languages():
-    return 'Success', 200
+# @ app.route('/languages', methods=["GET"])
+# def languages():
+#     return 'Success', 200
