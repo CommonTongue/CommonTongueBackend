@@ -212,6 +212,7 @@ def explore():
     to_language = query_params.get('to_language')
     start = int(query_params.get('start'))
     end = int(query_params.get('end'))
+    payload = []
     try:
         knowledge_base = knowledge_bases_collection.find_one({
             'language.alpha2': from_language
@@ -238,11 +239,9 @@ def explore():
             from_word = fetched_translation[from_language]
             to_word = fetched_translation[to_language]
             payload_set[translation_id] = (from_word, to_word)
-        payload = []
         # reset cursor
         relevant_ranked_words.rewind()
         for ranked_word in relevant_ranked_words:
-            print('b')
             this_rank = ranked_word['rank']
             this_id = str(ranked_word['_id']) # serialize ObjectId
             this_translation_id = ranked_word['translation']
@@ -259,6 +258,8 @@ def explore():
     return {'payload ': payload}
 
 
-# @ app.route('/languages', methods=["GET"])
-# def languages():
-#     return 'Success', 200
+@ app.route('/languages', methods=["GET"])
+def languages():
+    enabled_languages = languages_collection.find({ 'enabled': True })
+    print(list(enabled_languages))
+    return 'Success', 200
